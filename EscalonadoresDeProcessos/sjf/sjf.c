@@ -9,7 +9,7 @@ typedef struct Process
     int endTime;
 } Process;
 
-void oderByTime(Process *process, int n)
+void sjf(Process *process, int n)
 {
     int i, j;
     Process aux;
@@ -49,21 +49,23 @@ void setStartTimeAndEndTime(Process *process, int n)
 
 void printProcesses(Process *process, int n)
 {
+    printf("%-10s %-10s %-10s %-10s\n", "PID", "Time", "Start Time", "End Time"); // Cabeçalho da tabela
     int i;
     for (i = 0; i < n; i++)
     {
-        printf("Process %d: %d %d %d\n", process[i].pid, process[i].time, process[i].startTime, process[i].endTime);
+        printf("%-10d %-10d %-10d %-10d\n", process[i].pid, process[i].time, process[i].startTime, process[i].endTime);
+        printf("--------------------------------------------\n");
     }
 }
 
-int calcTotalTime(Process *process, int n)
+float calcAvgExecutionTime(Process *process, int n)
 {
     int i, totalTime = 0;
     for (i = 0; i < n; i++)
     {
-        totalTime += process[i].time;
+        totalTime += process[i].startTime;
     }
-    return totalTime;
+    return (float)totalTime/n;
 }
 
 void orderById(Process *process, int n)
@@ -121,7 +123,8 @@ int main()
         process[i].endTime = 0;
         totalTime += process[i].time;
     }
-    oderByTime(process, n);
+    sjf(process, n);
+    
     setStartTimeAndEndTime(process, n);
     printf("----------------------------\n");
 
@@ -129,6 +132,7 @@ int main()
     printf("----------------------------\n");
 
     printGranntDiagram(process, n, totalTime);
-    printf("\nTempo medio de execucao: %.2f\n", (float)totalTime/n);
+    float AvgExecutionTime = calcAvgExecutionTime(process, n);
+    printf("\nTempo medio de espera: %.2f\n", AvgExecutionTime);
     return 0;
 }
