@@ -1,102 +1,149 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct processo
+typedef struct Process
 {
-    int id;
-    int tempo;
-    int tempoRestante;
-    int tempoEspera;
-    int tempoExecucao;
-    int tempoRetorno;
-} Processo;
+    int pid;
+    int time;
+    int startTime;
+    int endTime;
+} Process;
 
-void ordenaPorTempo(Processo *processos, int n)
+void oderByTime(Process *process, int n)
 {
     int i, j;
-    Processo aux;
+    Process aux;
     for (i = 0; i < n; i++)
     {
         for (j = i + 1; j < n; j++)
         {
-            if (processos[i].tempo > processos[j].tempo)
+            if (process[i].time > process[j].time)
             {
-                aux = processos[i];
-                processos[i] = processos[j];
-                processos[j] = aux;
+                aux = process[i];
+                process[i] = process[j];
+                process[j] = aux;
             }
         }
     }
 }
 
-void imprimeProcessos(Processo *processos, int n)
+void setaTempoEspera(Process *process, int n)
 {
     int i;
     for (i = 0; i < n; i++)
     {
-        printf("Processo %d: %d %d %d %d %d\n", processos[i].id, processos[i].tempo, processos[i].tempoRestante, processos[i].tempoEspera, processos[i].tempoExecucao, processos[i].tempoRetorno);
+        if (i == 0)
+        {
+            process[i].startTime = 0;
+        }
+        else
+        {
+            process[i].startTime = process[i - 1].startTime + process[i - 1].time;
+        }
+    }
+}
+void setStartTimeAndEndTime(Process *process, int n)
+{
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        if (i == 0)
+        {
+            process[i].startTime = 0;
+        }
+        else
+        {
+            process[i].startTime = process[i - 1].startTime + process[i - 1].time;
+        }
+    }
+    for (i = 0; i < n; i++)
+    {
+        process[i].endTime = process[i].startTime + process[i].time;
     }
 }
 
-void imprimeDiagramaDeGantt(Processo *processos, int n, int tempoTotal)
+void printProcesses(Process *process, int n)
 {
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        printf("Process %d: %d %d %d\n", process[i].pid, process[i].time, process[i].startTime, process[i].endTime);
+    }
+}
+
+int calcTotalTime(Process *process, int n)
+{
+    int i, totalTime = 0;
+    for (i = 0; i < n; i++)
+    {
+        totalTime += process[i].time;
+    }
+    return totalTime;
+}
+
+void orderById(Process *process, int n)
+{
+    int i, j;
+    Process aux;
+    for (i = 0; i < n; i++)
+    {
+        for (j = i + 1; j < n; j++)
+        {
+            if (process[i].pid > process[j].pid)
+            {
+                aux = process[i];
+                process[i] = process[j];
+                process[j] = aux;
+            }
+        }
+    }
+}
+void printGranntDiagram(Process *process, int n, int totalTime)
+{
+    orderById(process, n);
     int i, j, k = 0;
     int tempoPercorrido = 0;
     for (i = 0; i < n; i++)
     {
-        printf("P%d -> ", processos[i].id);
-        for (k = 0; k < tempoPercorrido; k++)
+        printf("P%d -> ", process[i].pid);
+        for (k = 0; k < process[i].startTime; k++)
         {
             printf("-");
         }
-        for (j = 0; j < tempoTotal - tempoPercorrido; j++)
+        for (k=0; k < process[i].time; k++)
         {
-            if (j < processos[i].tempo)
-            {
-                printf("#");
-            }
-            else
-            {
-                printf("-");
-            }
+            printf("#");
+        }
+        for (k = process[i].startTime + process[i].time; k < totalTime; k++)
+        {
+            printf("-");
         }
         printf("\n");
-        tempoPercorrido += processos[i].tempo;
     }
 }
 
-int calculaTempoTotal(Processo *processos, int n)
-{
-    int i, tempoTotal = 0;
-    for (i = 0; i < n; i++)
-    {
-        tempoTotal += processos[i].tempo;
-    }
-    return tempoTotal;
-}
 int main()
 {
-    int n, i, j, tempoTotal = 0;
-    Processo *processos;
+    int n, i, j, totalTime = 0;
+    Process *process;
     printf("Digite o numero de processos: ");
     scanf("%d", &n);
-    processos = (Processo *)malloc(n * sizeof(Processo));
+    process = (Process *)malloc(n * sizeof(Process));
     for (i = 0; i < n; i++)
     {
-        scanf("%d %d", &processos[i].id, &processos[i].tempo);
-        processos[i].tempoRestante = processos[i].tempo;
-        processos[i].tempoEspera = 0;
-        processos[i].tempoExecucao = 0;
-        processos[i].tempoRetorno = 0;
-        tempoTotal += processos[i].tempo;
+        scanf("%d %d", &process[i].pid, &process[i].time);
+        process[i].startTime = 0;
+        process[i].endTime = 0;
+        totalTime += process[i].time;
     }
-    for (i = 0; i < n; i++)
-    {
-        processos[i].tempoRetorno = processos[i].tempoEspera + processos[i].tempo;
-    }
-    ordenaPorTempo(processos, n);
-    imprimeProcessos(processos, n);
-    printf("\n----------------------------\n");
-    imprimeDiagramaDeGantt(processos, n, tempoTotal);
+    oderByTime(process, n);
+    setStartTimeAndEndTime(process, n);
+    printf("----------------------------\n");
+
+    printProcesses(process, n);
+    printf("----------------------------\n");
+
+    printGranntDiagram(process, n, totalTime);
+    printf("\nTempo medio de execucao: %.2f\n", (float)totalTime/n);
     return 0;
 }
