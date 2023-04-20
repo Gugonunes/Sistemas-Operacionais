@@ -27,21 +27,6 @@ void oderByTime(Process *process, int n)
     }
 }
 
-void setaTempoEspera(Process *process, int n)
-{
-    int i;
-    for (i = 0; i < n; i++)
-    {
-        if (i == 0)
-        {
-            process[i].startTime = 0;
-        }
-        else
-        {
-            process[i].startTime = process[i - 1].startTime + process[i - 1].time;
-        }
-    }
-}
 void setStartTimeAndEndTime(Process *process, int n)
 {
     int i;
