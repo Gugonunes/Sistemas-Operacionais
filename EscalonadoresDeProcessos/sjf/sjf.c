@@ -25,11 +25,7 @@ void sjf(Process *process, int n)
             }
         }
     }
-}
 
-void setStartTimeAndEndTime(Process *process, int n)
-{
-    int i;
     for (i = 0; i < n; i++)
     {
         if (i == 0)
@@ -45,6 +41,13 @@ void setStartTimeAndEndTime(Process *process, int n)
     {
         process[i].endTime = process[i].startTime + process[i].time;
     }
+
+    int totalTime = 0;
+    for (i = 0; i < n; i++)
+    {
+        totalTime += process[i].startTime;
+    }
+    printf("Tempo medio de espera: %.2f\n", (float)totalTime / n);
 }
 
 void printProcesses(Process *process, int n)
@@ -56,16 +59,6 @@ void printProcesses(Process *process, int n)
         printf("%-10d %-10d %-10d %-10d\n", process[i].pid, process[i].time, process[i].startTime, process[i].endTime);
         printf("--------------------------------------------\n");
     }
-}
-
-float calcAvgExecutionTime(Process *process, int n)
-{
-    int i, totalTime = 0;
-    for (i = 0; i < n; i++)
-    {
-        totalTime += process[i].startTime;
-    }
-    return (float)totalTime/n;
 }
 
 void orderById(Process *process, int n)
@@ -118,21 +111,19 @@ int main()
     process = (Process *)malloc(n * sizeof(Process));
     for (i = 0; i < n; i++)
     {
+        printf("Digite o PID e o tempo do processo (ex: 1 3):");
         scanf("%d %d", &process[i].pid, &process[i].time);
         process[i].startTime = 0;
         process[i].endTime = 0;
         totalTime += process[i].time;
     }
+    printf("----------------------------\n");
     sjf(process, n);
-    
-    setStartTimeAndEndTime(process, n);
+
     printf("----------------------------\n");
 
     printProcesses(process, n);
-    printf("----------------------------\n");
 
     printGranntDiagram(process, n, totalTime);
-    float AvgExecutionTime = calcAvgExecutionTime(process, n);
-    printf("\nTempo medio de espera: %.2f\n", AvgExecutionTime);
     return 0;
 }
